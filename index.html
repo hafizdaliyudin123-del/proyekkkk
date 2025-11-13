@@ -46,13 +46,28 @@
         /* checkout area: STACKED layout (form under cart) */
         .checkout-content { display:flex; flex-direction:column; gap:18px; align-items:stretch; margin-top:18px; }
 
-        .keranjang-detail { background: var(--accent); padding:14px; border-radius:10px; border:1px solid var(--border); }
-        .keranjang-detail h3 { margin-top:0; color:var(--heading-color); }
-        #daftar-keranjang { padding-left:18px; margin:6px 0 12px; }
+        /* ====== IMPORTANT: make cart full-width and taller ====== */
+        .keranjang-detail {
+            background: var(--accent);
+            padding:20px;
+            border-radius:10px;
+            border:1px solid var(--border);
+            width: 100%;              /* take full container width */
+            align-self: stretch;      /* ensure it stretches in flex container */
+            min-height: 360px;        /* prevent being too short (adjust as needed) */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 12px;
+        }
+        /* increase visual size of the cart box header and totals */
+        .keranjang-detail h3 { margin:0 0 6px 0; color:var(--heading-color); font-size:1.05rem; }
+        #daftar-keranjang { padding-left:18px; margin:6px 0 6px; flex: 1 1 auto; } /* allow list to grow */
         .keranjang-total { margin:6px 0; color:var(--muted); display:flex; justify-content:space-between; }
-        .grand-total { margin-top:10px; font-size:1.05rem; color:var(--heading-color); display:flex; justify-content:space-between; align-items:center; }
+        .grand-total { margin-top:10px; font-size:1.05rem; color:var(--heading-color); display:flex; justify-content:space-between; align-items:center; font-weight:700; }
 
-        form { background:#fff; padding:14px; border-radius:10px; border:1px solid var(--border); }
+        /* form area (below cart) */
+        form { background:#fff; padding:16px; border-radius:10px; border:1px solid var(--border); width: 100%; }
         form h3 { margin-top:0; color:var(--heading-color); }
         .form-group label { display:block; margin-bottom:6px; font-weight:600; }
         .form-group input, .form-group textarea { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ddd; font-size:0.95rem; }
@@ -61,7 +76,7 @@
         .detail-bayar, .pack-detail { margin-left:26px; color:var(--muted); font-size:0.92rem; display:none; }
         .detail-bayar.visible, .pack-detail.visible { display:block; }
 
-        .tombol-bayar { background: var(--green); color: #fff; border: none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700; }
+        .tombol-bayar { background: var(--green); color: #fff; border: none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:10px; }
         .tombol-bayar:hover:not([disabled]) { background: var(--green-dark); }
         #checkout-button[disabled] { opacity:0.6; cursor:not-allowed; }
 
@@ -71,6 +86,13 @@
 
         /* small tweak: keep spacing consistent when cart empty */
         #daftar-keranjang li { margin-bottom:8px; }
+        /* responsive: keep stacked on small screens */
+        @media (min-width: 1100px) {
+            /* if you want side-by-side on very wide screens, you can enable this:
+            .checkout-content { flex-direction: row; }
+            .keranjang-detail, form { width: 50%; }
+            */
+        }
     </style>
 </head>
 <body>
