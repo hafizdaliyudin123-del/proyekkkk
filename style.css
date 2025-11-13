@@ -1,3 +1,4 @@
+/* name=style.css */
 /* General Styling */
 :root {
     --primary-color: #4CAF50; /* Hijau Buah */
@@ -5,8 +6,14 @@
     --text-color: #333;
     --light-bg: #f7f7f7;
     --white-bg: #ffffff;
+
+    /* tambahan variabel untuk heading / banner */
+    --heading-color: #114b2b;
+    --green-dark: #388E3C;
+    --border: #e6e6e6;
 }
 
+/* Reset / Box sizing */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -57,6 +64,28 @@ nav a:hover {
     color: var(--secondary-color);
 }
 
+/* Section Banner (judul section dengan strip warna) */
+.section-banner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 28px 0 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(76,175,80,0.06), rgba(76,175,80,0.02));
+    border: 1px solid rgba(76,175,80,0.06);
+}
+.section-banner h2 {
+    margin: 0;
+    color: var(--heading-color);
+    font-size: 1.25rem;
+}
+.section-banner p.lead {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
 /* Section Styling */
 main section {
     padding: 40px 0;
@@ -99,6 +128,7 @@ h2 {
     height: auto;
     border-radius: 6px;
     margin-bottom: 10px;
+    object-fit: cover;
 }
 
 .produk-item h3 {
@@ -132,7 +162,7 @@ button {
 }
 
 button:hover {
-    background-color: #388E3C;
+    background-color: var(--green-dark);
 }
 
 .tombol-bayar {
@@ -148,26 +178,32 @@ button:hover {
     cursor: not-allowed;
 }
 
-
 /* Checkout Section */
+/* Ubah: layout STACKED (form dibawah keranjang) selalu */
 .checkout-content {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
-@media (max-width: 768px) {
-    .checkout-content {
-        grid-template-columns: 1fr;
-    }
-}
+/* Jika ingin mobile tweak, aturan ini masih aman */
+/* @media (max-width: 768px) {
+    .checkout-content { grid-template-columns: 1fr; }
+} */
 
+/* Keranjang: buat lebar penuh dan tinggi minimum agar tidak pendek */
 .keranjang-detail {
     background-color: var(--light-bg);
     padding: 20px;
     border-radius: 8px;
     border: 1px solid #ddd;
-    align-self: flex-start;
+    align-self: stretch;
+    width: 100%;           /* pastikan lebar penuh */
+    min-height: 360px;     /* sesuaikan jika ingin lebih tinggi/pendek */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    justify-content: flex-start;
 }
 
 .keranjang-detail h3 {
@@ -177,9 +213,13 @@ button:hover {
 }
 
 #daftar-keranjang {
+    /* sebelumnya Anda menghilangkan marker, tapi ini adalah daftar produk; 
+       kita gunakan list tanpa bullet (produk ditampilkan sebagai item) */
     list-style: none;
     padding: 10px 0;
     margin-bottom: 20px;
+    flex: 1 1 auto; /* agar daftar bisa meregang mengisi area vertikal */
+    overflow-y: auto; /* jika banyak item, munculkan scroll dalam kotak */
 }
 
 #daftar-keranjang li {
@@ -210,6 +250,8 @@ button:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    border: 1px solid var(--border);
 }
 
 .form-group {
@@ -257,6 +299,7 @@ button:hover {
     color: var(--primary-color);
 }
 
+/* detail bayar box (JS toggles .visible) */
 .detail-bayar {
     background-color: #f0f8f0;
     border-left: 3px solid var(--primary-color);
@@ -266,6 +309,7 @@ button:hover {
     font-size: 0.9em;
 }
 
+/* Warning box */
 .peringatan {
     color: #D32F2F; /* Merah */
     background-color: #FFEBEE;
@@ -276,11 +320,15 @@ button:hover {
     font-weight: bold;
 }
 
+/* remove item button */
 .remove-item {
     background-color: #D32F2F;
+    color: #fff;
     padding: 3px 8px;
     font-size: 0.8em;
     margin-left: 10px;
+    border-radius: 4px;
+    border: none;
 }
 
 /* Footer */
@@ -297,24 +345,53 @@ footer p {
 }
 
 /* --- PENYESUAIAN UNTUK MENENGAHKAN CARA PEMESANAN --- */
-
 #cara-pesan ol {
-    /* Mengurangi lebar maksimum menjadi 500px agar lebih fokus di tengah */
+    /* Mengurangi lebar maksimum agar lebih fokus di tengah */
     max-width: 500px; 
-    /* Menengahkan blok daftar (ol) di dalam container */
     margin: 0 auto;
-    /* Menengahkan teks di dalam list item */
-    text-align: center;
-    /* Memberi padding horizontal agar tidak terlalu mepet */
+    text-align: center; /* ini memusatkan teks numerik di dalam blok; override di li */
     padding-left: 20px;
     padding-right: 20px;
 }
 
+/* Pastikan angka (marker) terlihat pada ol */
+#cara-pesan ol {
+    list-style-type: decimal;
+    list-style-position: outside;
+    padding-left: 1.4rem; /* beri ruang untuk angka */
+}
+
+/* Kustom marker agar kontras */
+#cara-pesan ol li::marker {
+    color: var(--heading-color);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
 #cara-pesan li {
-    /* Pastikan list item tidak terlalu rapat */
     margin-bottom: 10px;
-    /* Atur teks alignment ke kiri (default) di dalam li */
-    text-align: left;
-    /* Membuat list item sebagai block */
+    text-align: left; /* isi tiap li tetap kiri agar mudah dibaca */
     display: block; 
 }
+
+/* Fallback override jika ada reset lain yang menghapus marker */
+ul, ol { list-style: initial !important; }
+
+/* small tweak: keep spacing consistent when cart empty */
+#daftar-keranjang li { margin-bottom: 8px; }
+
+/* responsive tweaks (optional)
+   Jika suatu saat ingin side-by-side di layar lebar, uncomment blok berikut */
+@media (min-width: 1100px) {
+    /* contoh: sisi-by-side jika diinginkan lagi
+    .checkout-content {
+        flex-direction: row;
+        gap: 24px;
+    }
+    .keranjang-detail, #pembayaran-form {
+        width: 48%;
+    }
+    */
+}
+
+/* end of stylesheet */
