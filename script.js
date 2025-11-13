@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // === DOM Elements ===
-    const radioButtons = document.querySelectorAll('input[name="metode_bayar"]');
+    const radioButtonsBayar = document.querySelectorAll('input[name="metode_bayar"]');
     const detailContainers = document.querySelectorAll('.detail-bayar');
     const tambahKeranjangButtons = document.querySelectorAll('.tambah-keranjang');
     const daftarKeranjang = document.getElementById('daftar-keranjang');
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Nomor WhatsApp tujuan
     const WHATSAPP_NUMBER = '6285692128064'; 
     
-    // === State Keranjang ===
+    // === State Keranjang & Konstanta ===
     let keranjang = [];
     const ONGKIR_STANDAR = 10000;
     const BIAYA_COD = 5000;
@@ -28,30 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }).format(number);
     };
 
-    // Fungsi untuk menyembunyikan semua detail pembayaran
     const hideAllDetails = () => {
         detailContainers.forEach(detail => detail.style.display = 'none');
     };
 
-    // Tampilkan detail saat radio button dipilih
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', (event) => {
-            hideAllDetails();
-            const value = event.target.value;
-            const detailElement = document.querySelector(`.${value}-detail`);
-            if (detailElement) {
-                detailElement.style.display = 'block';
-            }
-            updateGrandTotal();
-        });
-    });
-
-    // Sembunyikan semua saat halaman dimuat
-    hideAllDetails();
-
-    // === Fungsi Keranjang ===
-
-    // Menghitung dan memperbarui total
+    // === Fungsi Perhitungan & Update DOM ===
+    
+    // FUNGSI INI DIGUNAKAN UNTUK MENGHITUNG TOTAL DAN MEMPERBARUI TAMPILAN
     const hitungTotal = () => {
         let subtotal = keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0);
         let ongkosKirim = ONGKIR_STANDAR;
@@ -74,12 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
         checkoutButton.disabled = isKeranjangEmpty;
         peringatanKeranjang.style.display = isKeranjangEmpty ? 'block' : 'none';
         
+        // Mengembalikan nilai total untuk digunakan saat submit
         return { subtotal, grandTotal, ongkosKirim, biayaTambahan };
     };
 
-    const updateGrandTotal = () => {
-          hitungTotal(); // Hanya panggil untuk update tampilan total
-    }
 
     // Merender ulang daftar keranjang
     const renderKeranjang = () => {
@@ -95,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 li.innerHTML = `
                     <span>${item.nama} (x${item.qty})</span>
                     <span>${formatRupiah(item.harga * item.qty)} 
-                        <button class="remove-item" data-id="${item.id}" data-qty="1">Hapus 1</button>
+                        <button class="remove-item" data-id="${item.id}">Hapus 1</button>
                         <button class="remove-item-all" data-id="${item.id}">Hapus Semua</button>
                     </span>
                 `;
@@ -103,15 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
+        // Panggil hitungTotal setelah render keranjang selesai
         hitungTotal();
     };
 
+
+    // === Event Handlers (Logika Keranjang) ===
+    
     // Menangani klik tombol "Tambah ke Keranjang"
     tambahKeranjangButtons.forEach(button => {
         button.addEventListener('click', (event) => {
             const id = event.target.dataset.id;
             const nama = event.target.dataset.nama;
-            // Gunakan parseInt untuk memastikan harga adalah angka
             const harga = parseInt(event.target.dataset.harga); 
 
             const existingItem = keranjang.find(item => item.id === id);
@@ -128,29 +112,45 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Menangani klik tombol "Hapus" pada keranjang
     daftarKeranjang.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-item')) {
-            const id = event.target.dataset.id;
+        const target = event.target;
+        
+        if (target.classList.contains('remove-item')) {
+            const id = target.dataset.id;
             const itemIndex = keranjang.findIndex(item => item.id === id);
 
             if (itemIndex > -1) {
                 keranjang[itemIndex].qty -= 1;
                 if (keranjang[itemIndex].qty <= 0) {
-                    keranjang.splice(itemIndex, 1); // Hapus jika qty = 0
+                    keranjang.splice(itemIndex, 1);
                 }
                 renderKeranjang();
             }
         }
         
-        if (event.target.classList.contains('remove-item-all')) {
-            const id = event.target.dataset.id;
+        if (target.classList.contains('remove-item-all')) {
+            const id = target.dataset.id;
             const itemIndex = keranjang.findIndex(item => item.id === id);
 
             if (itemIndex > -1) {
-                keranjang.splice(itemIndex, 1); // Hapus semua
+                keranjang.splice(itemIndex, 1);
                 renderKeranjang();
             }
         }
     });
+
+    // Menampilkan detail saat radio button pembayaran dipilih (juga memanggil hitungTotal)
+    radioButtonsBayar.forEach(radio => {
+        radio.addEventListener('change', (event) => {
+            hideAllDetails();
+            const value = event.target.value;
+            const detailElement = document.querySelector(`.${value}-detail`);
+            if (detailElement) {
+                detailElement.style.display = 'block';
+            }
+            hitungTotal(); // Panggil hitungTotal untuk update biaya COD/Ongkir
+        });
+    });
+
 
     // === Form Submission (Pengiriman WhatsApp) ===
     pembayaranForm.addEventListener('submit', (event) => {
@@ -161,6 +161,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
+        // Pastikan semua field form 'required' terisi (validasi HTML)
+        if (!pembayaranForm.checkValidity()) {
+            return; 
+        }
+
         // 1. Ambil data form dan total
         const formData = new FormData(pembayaranForm);
         const data = Object.fromEntries(formData.entries());
@@ -170,12 +175,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const metodeBayarLabelElement = document.querySelector(`input[name="metode_bayar"][value="${data.metode_bayar}"] + label`);
         const metodeBayarLabel = metodeBayarLabelElement ? metodeBayarLabelElement.textContent.trim() : data.metode_bayar.toUpperCase();
         
-        // --- PENAMBAHAN: Ambil label kemasan ---
+        // --- FIX BAGIAN PACKAGING ---
         const kemasanLabelElement = document.querySelector(`input[name="packaging"][value="${data.packaging}"] + label`);
         const kemasanLabel = kemasanLabelElement ? kemasanLabelElement.textContent.trim() : data.packaging;
 
         // 2. Buat Teks Pesan
         let pesan = `Halo *Toko Buah Segar* 🛒, saya mau pesan:\n\n`;
+        
         pesan += `*--- INFO PENGIRIMAN ---*\n`;
         pesan += `*Nama:* ${data.nama}\n`;
         pesan += `*Telepon:* ${data.telepon}\n`;
@@ -187,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         pesan += `\n*--- OPSI PENGIRIMAN ---*\n`;
-        pesan += `Kemasan: ${kemasanLabel}\n`; // Ditambahkan ke pesan WA
+        pesan += `Kemasan: ${kemasanLabel}\n`; // Pilihan Kemasan dikirim
         pesan += `Metode Bayar: ${metodeBayarLabel}\n\n`;
         
         pesan += `*--- RINCIAN BIAYA ---*\n`;
@@ -207,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 4. Redirect ke WhatsApp
         window.open(whatsappURL, '_blank');
         
-        // Opsional: Reset form dan keranjang setelah redirect
+        // Reset form dan keranjang setelah redirect
         setTimeout(() => {
             alert("Pemesanan berhasil! Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran. Tekan kirim di WhatsApp.");
             
@@ -218,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100); 
     });
 
-    // Inisialisasi tampilan keranjang
-    renderKeranjang();
+    // === Inisialisasi Saat Halaman Dimuat ===
+    hideAllDetails();
+    renderKeranjang(); 
 });
