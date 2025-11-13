@@ -186,11 +186,6 @@ button:hover {
     gap: 18px;
 }
 
-/* Jika ingin mobile tweak, aturan ini masih aman */
-/* @media (max-width: 768px) {
-    .checkout-content { grid-template-columns: 1fr; }
-} */
-
 /* Keranjang: buat lebar penuh dan tinggi minimum agar tidak pendek */
 .keranjang-detail {
     background-color: var(--light-bg);
@@ -344,38 +339,50 @@ footer p {
     margin: 0;
 }
 
-/* --- PENYESUAIAN UNTUK MENENGAHKAN CARA PEMESANAN --- */
-#cara-pesan ol {
-    /* Mengurangi lebar maksimum agar lebih fokus di tengah */
-    max-width: 500px; 
-    margin: 0 auto;
-    text-align: center; /* ini memusatkan teks numerik di dalam blok; override di li */
-    padding-left: 20px;
-    padding-right: 20px;
+/* ===========================
+   CARA PEMESANAN (PERMINTAAN)
+   - Taruh di pojok kiri layout (kiri dalam container)
+   - Tampilkan nomor 1..n per baris, jelas terlihat
+   =========================== */
+
+/* Container: letakkan konten #cara-pesan ke kiri dalam container */
+#cara-pesan {
+    /* remove centering */
+    max-width: none;
+    margin: 0;          /* biarkan mengisi lebar container */
+    padding: 20px 0;    /* beri jarak atas/bawah agar tidak menempel */
+    text-align: left;   /* pastikan text rata kiri */
 }
 
-/* Pastikan angka (marker) terlihat pada ol */
+/* Ordered list styling: angka terlihat dan setiap item baris sendiri */
 #cara-pesan ol {
     list-style-type: decimal;
-    list-style-position: outside;
-    padding-left: 1.4rem; /* beri ruang untuk angka */
+    list-style-position: outside; /* marker di luar konten */
+    margin: 0;
+    padding-left: 1.6rem; /* ruang untuk angka agar tidak menempel */
+    width: 100%;
 }
 
-/* Kustom marker agar kontras */
+/* Marker (angka) kustom agar kontras dan jelas */
 #cara-pesan ol li::marker {
     color: var(--heading-color);
     font-weight: 700;
     font-size: 1rem;
 }
 
-#cara-pesan li {
-    margin-bottom: 10px;
-    text-align: left; /* isi tiap li tetap kiri agar mudah dibaca */
-    display: block; 
+/* Setiap item tampil satu per baris, jarak antar item jelas */
+#cara-pesan ol li {
+    display: list-item; /* standar, pastikan tidak di-reset */
+    margin-bottom: 12px;
+    text-align: left;   /* isi tetap rata kiri */
+    font-size: 1rem;
+    line-height: 1.4;
 }
 
-/* Fallback override jika ada reset lain yang menghapus marker */
-ul, ol { list-style: initial !important; }
+/* Jika ada style global yang menghilangkan angka, override */
+#cara-pesan ol, #cara-pesan li {
+    list-style: decimal !important;
+}
 
 /* small tweak: keep spacing consistent when cart empty */
 #daftar-keranjang li { margin-bottom: 8px; }
