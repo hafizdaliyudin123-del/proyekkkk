@@ -1,10 +1,30 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Toko Buah Segar Online | Checkout</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Sedikit styling default supaya tampil rapi bila belum ada style.css */
+        body { font-family: Arial, sans-serif; line-height: 1.4; margin: 0; padding: 0; }
+        .container { max-width: 980px; margin: 0 auto; padding: 20px; }
+        header { background:#f8f8f8; padding: 10px 0; }
+        .produk-grid { display:flex; gap:16px; flex-wrap:wrap; }
+        .produk-item { border:1px solid #ddd; padding:12px; width: 30%; box-sizing:border-box; }
+        .produk-item img { width:100%; height:auto; display:block; }
+        .checkout-content { display:flex; gap:24px; flex-wrap:wrap; }
+        .keranjang-detail { flex:1 1 300px; border:1px solid #eee; padding:12px; }
+        form { flex:1 1 320px; border:1px solid #eee; padding:12px; }
+        .form-group { margin-bottom:10px; }
+        .pilihan-pembayaran, .pilihan-packaging { margin-bottom:8px; }
+        .detail-bayar, .pack-detail { display:none; margin:6px 0 12px 22px; color:#333; font-size:0.95em; }
+        .detail-bayar.visible, .pack-detail.visible { display:block; }
+        .peringatan { color:#a00; display:block; margin-top:10px; }
+        #checkout-button[disabled] { opacity:0.6; cursor:not-allowed; }
+        ul#daftar-keranjang { padding-left:16px; }
+        li { margin-bottom:8px; list-style: decimal; }
+    </style>
 </head>
 <body>
 
@@ -54,11 +74,12 @@
                 
                 <div class="keranjang-detail">
                     <h3>Daftar Belanja Anda</h3>
-                    <ul id="daftar-keranjang">
-                        </ul>
+                    <ul id="daftar-keranjang"></ul>
+
                     <p class="keranjang-total">Total Belanja: <span id="total-belanja">Rp 0</span></p>
+                    <p class="keranjang-total">Biaya Kemasan: <span id="packaging-cost">Rp 0</span></p>
                     <p class="keranjang-total">Ongkos Kirim: <span id="ongkir">Rp 10.000</span></p>
-                    <p class="grand-total">**Total Bayar:** <span id="grand-total">**Rp 10.000**</span></p>
+                    <p class="grand-total">Total Bayar: <strong><span id="grand-total">Rp 10.000</span></strong></p>
                 </div>
 
                 <form id="pembayaran-form">
@@ -81,7 +102,7 @@
                     <h3>Pilih Metode Pembayaran</h3>
                     
                     <div class="pilihan-pembayaran">
-                        <input type="radio" id="ewallet" name="metode_bayar" value="ewallet" required>
+                        <input type="radio" id="ewallet" name="metode_bayar" value="ewallet" data-label="E-Wallet (Gopay/OVO/Dana)" required>
                         <label for="ewallet">💳 E-Wallet (Gopay, OVO, Dana)</label>
                         <div class="detail-bayar ewallet-detail">
                             <p>Pembayaran akan diarahkan ke aplikasi whatsapp untuk verifikasi setelah klik 'Bayar Sekarang'.</p>
@@ -89,23 +110,37 @@
                     </div>
 
                     <div class="pilihan-pembayaran">
-                        <input type="radio" id="transfer" name="metode_bayar" value="transfer">
+                        <input type="radio" id="transfer" name="metode_bayar" value="transfer" data-label="Transfer Bank (BCA/Mandiri/BRI)">
                         <label for="transfer">🏦 Transfer Bank (BCA, Mandiri, BRI)</label>
                         <div class="detail-bayar transfer-detail">
-                            <p>Transfer ke Rekening **BCA 1234567890** a.n. Toko Buah Segar. Kirim bukti transfer setelahnya.</p>
+                            <p>Transfer ke Rekening <strong>BCA 1234567890</strong> a.n. Toko Buah Segar. Kirim bukti transfer setelahnya.</p>
                         </div>
                     </div>
 
                     <div class="pilihan-pembayaran">
-                        <input type="radio" id="cod" name="metode_bayar" value="cod">
+                        <input type="radio" id="cod" name="metode_bayar" value="cod" data-label="Cash On Delivery (COD)">
                         <label for="cod">💵 Cash On Delivery (COD)</label>
                         <div class="detail-bayar cod-detail">
-                            <p>**Bayar tunai** saat buah diterima. Berlaku untuk area tertentu (Biaya COD: Rp 5.000).</p>
+                            <p><strong>Bayar tunai</strong> saat buah diterima. Berlaku untuk area tertentu (Biaya COD: Rp 5.000).</p>
                         </div>
                     </div>
-                    
+
+                    <hr>
+
+                    <!-- Opsi Packaging (opsional) -->
+                    <h3>Pilih Kemasan (opsional)</h3>
+                    <div class="pilihan-packaging">
+                        <input type="radio" id="pack_standard" name="packaging" value="Standard" data-label="Standard (Tanpa Box)" data-price="0" checked>
+                        <label for="pack_standard">Standard (Tanpa Box)</label>
+                        <div class="pack-detail">Kemasan standar tanpa box.</div>
+
+                        <input type="radio" id="pack_box" name="packaging" value="Box" data-label="Box (+Rp10.000)" data-price="10000">
+                        <label for="pack_box">Box (+Rp10.000)</label>
+                        <div class="pack-detail">Tambahan box untuk hadiah / keamanan.</div>
+                    </div>
+
                     <button type="submit" class="tombol-bayar" disabled id="checkout-button">Bayar Sekarang</button>
-                    <p class="peringatan" id="peringatan-keranjang">**Keranjang kosong.** Silakan pilih produk terlebih dahulu.</p>
+                    <p class="peringatan" id="peringatan-keranjang"><strong>Keranjang kosong.</strong> Silakan pilih produk terlebih dahulu.</p>
                 </form>
             </div>
         </section>
@@ -126,7 +161,7 @@
 
     <footer id="kontak">
         <div class="container">
-            <p>&copy; 2025 Toko Buah Segar Online. | Hubungi Kami: **085233573962**</p>
+            <p>&copy; 2025 Toko Buah Segar Online. | Hubungi Kami: <strong>085233573962</strong></p>
         </div>
     </footer>
 
