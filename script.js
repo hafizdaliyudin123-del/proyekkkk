@@ -161,4 +161,63 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // 1. Ambil data form dan
+        // 1. Ambil data form dan total
+        const formData = new FormData(pembayaranForm);
+        const data = Object.fromEntries(formData.entries());
+        const { grandTotal, subtotal, ongkosKirim, biayaTambahan } = hitungTotal();
+        
+        // Ambil label pembayaran dan kemasan yang dipilih
+        const metodeBayarLabelElement = document.querySelector(`input[name="metode_bayar"][value="${data.metode_bayar}"] + label`);
+        const metodeBayarLabel = metodeBayarLabelElement ? metodeBayarLabelElement.textContent.trim() : data.metode_bayar.toUpperCase();
+        
+        // --- PENAMBAHAN: Ambil label kemasan ---
+        const kemasanLabelElement = document.querySelector(`input[name="packaging"][value="${data.packaging}"] + label`);
+        const kemasanLabel = kemasanLabelElement ? kemasanLabelElement.textContent.trim() : data.packaging;
+
+        // 2. Buat Teks Pesan
+        let pesan = `Halo *Toko Buah Segar* 🛒, saya mau pesan:\n\n`;
+        pesan += `*--- INFO PENGIRIMAN ---*\n`;
+        pesan += `*Nama:* ${data.nama}\n`;
+        pesan += `*Telepon:* ${data.telepon}\n`;
+        pesan += `*Alamat:* ${data.alamat}\n\n`;
+        
+        pesan += `*--- DETAIL PESANAN ---*\n`;
+        keranjang.forEach((item, index) => {
+            pesan += `${index + 1}. ${item.nama} (x${item.qty}) - ${formatRupiah(item.harga * item.qty)}\n`;
+        });
+        
+        pesan += `\n*--- OPSI PENGIRIMAN ---*\n`;
+        pesan += `Kemasan: ${kemasanLabel}\n`; // Ditambahkan ke pesan WA
+        pesan += `Metode Bayar: ${metodeBayarLabel}\n\n`;
+        
+        pesan += `*--- RINCIAN BIAYA ---*\n`;
+        pesan += `Subtotal: ${formatRupiah(subtotal)}\n`;
+        pesan += `Ongkir: ${formatRupiah(ongkosKirim)}\n`;
+        if (biayaTambahan > 0) {
+            pesan += `Biaya Tambahan (COD): ${formatRupiah(biayaTambahan)}\n`;
+        }
+        pesan += `*Total Bayar: ${formatRupiah(grandTotal)}*\n\n`;
+        
+        pesan += `Mohon konfirmasi pesanan ini. Terima kasih! 🙏`;
+
+        // 3. Format URL WhatsApp
+        const encodedPesan = encodeURIComponent(pesan);
+        const whatsappURL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedPesan}`;
+
+        // 4. Redirect ke WhatsApp
+        window.open(whatsappURL, '_blank');
+        
+        // Opsional: Reset form dan keranjang setelah redirect
+        setTimeout(() => {
+            alert("Pemesanan berhasil! Anda akan diarahkan ke WhatsApp untuk konfirmasi dan pembayaran. Tekan kirim di WhatsApp.");
+            
+            keranjang = [];
+            renderKeranjang();
+            pembayaranForm.reset();
+            hideAllDetails();
+        }, 100); 
+    });
+
+    // Inisialisasi tampilan keranjang
+    renderKeranjang();
+});
