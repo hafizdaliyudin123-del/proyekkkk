@@ -1,279 +1,42 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Toko Buah Segar Online | Checkout</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        :root{
-            --green: #2e8b57;
-            --green-dark: #256b45;
-            --accent: #f7fbf7;
-            --card: #ffffff;
-            --muted: #666;
-            --border: #e6e6e6;
-            --section-bg: #e9f7ef;
-            --heading-color: #114b2b;
-        }
-
-        * { box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; line-height: 1.5; margin: 0; padding: 0; color: #222; background: #fafafa; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
-
-        header { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff; }
-        .header-content { display:flex; align-items:center; justify-content:space-between; gap:16px; padding: 18px 20px; }
-        .brand { display:flex; align-items:center; gap:12px; }
-        .brand .logo { width:44px; height:44px; border-radius:8px; background: rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-weight:700; color:#fff; }
-        .brand h1 { margin:0; font-size:1.25rem; color: #fff; letter-spacing:0.2px; }
-        nav { display:flex; align-items:center; gap:14px; }
-        nav a { color: rgba(255,255,255,0.95); text-decoration:none; padding:6px 10px; border-radius:6px; font-weight:600; }
-        nav a:hover { background: rgba(255,255,255,0.08); color:#fff; }
-
-        .section-banner { display:flex; align-items:center; gap:12px; margin: 28px 0 12px; padding:12px 16px; border-radius:10px; background: linear-gradient(90deg, rgba(46,139,87,0.08), rgba(46,139,87,0.02)); border: 1px solid rgba(46,139,87,0.08); }
-        .section-banner h2 { margin:0; color: var(--heading-color); font-size:1.25rem; }
-        .section-banner p.lead { margin:0; color:var(--muted); font-size:0.95rem; }
-
-        .produk-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:18px; margin-top:10px; }
-        .produk-item { background: var(--card); border:1px solid var(--border); padding:12px; border-radius:10px; display:flex; flex-direction:column; gap:8px; box-shadow: 0 2px 6px rgba(16,24,32,0.04); }
-        .produk-item img { width:100%; height:140px; object-fit:cover; border-radius:8px; background:#f0f0f0; }
-        .produk-item h3 { margin:0; font-size:1rem; color:var(--heading-color); }
-        .produk-item .deskripsi { margin:0; color:var(--muted); font-size:0.9rem; }
-        .produk-item .harga { margin-top:auto; font-weight:700; color:var(--green-dark); }
-        .produk-item button { margin-top:8px; background:var(--green); color:#fff; border:0; padding:8px 10px; border-radius:8px; cursor:pointer; }
-        .produk-item button:hover { background:var(--green-dark); }
-
-        /* checkout area: STACKED layout (form under cart) */
-        .checkout-content { display:flex; flex-direction:column; gap:18px; align-items:stretch; margin-top:18px; }
-
-        /* ====== IMPORTANT: make cart full-width and taller ====== */
-        .keranjang-detail {
-            background: var(--accent);
-            padding:20px;
-            border-radius:10px;
-            border:1px solid var(--border);
-            width: 100%;              /* take full container width */
-            align-self: stretch;      /* ensure it stretches in flex container */
-            min-height: 360px;        /* prevent being too short (adjust as needed) */
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 12px;
-        }
-        /* increase visual size of the cart box header and totals */
-        .keranjang-detail h3 { margin:0 0 6px 0; color:var(--heading-color); font-size:1.05rem; }
-        #daftar-keranjang { padding-left:18px; margin:6px 0 6px; flex: 1 1 auto; } /* allow list to grow */
-        .keranjang-total { margin:6px 0; color:var(--muted); display:flex; justify-content:space-between; }
-        .grand-total { margin-top:10px; font-size:1.05rem; color:var(--heading-color); display:flex; justify-content:space-between; align-items:center; font-weight:700; }
-
-        /* form area (below cart) */
-        form { background:#fff; padding:16px; border-radius:10px; border:1px solid var(--border); width: 100%; }
-        form h3 { margin-top:0; color:var(--heading-color); }
-        .form-group label { display:block; margin-bottom:6px; font-weight:600; }
-        .form-group input, .form-group textarea { width:100%; padding:8px 10px; border-radius:6px; border:1px solid #ddd; font-size:0.95rem; }
-        .pilihan-pembayaran, .pilihan-packaging { display:flex; gap:10px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
-        .pilihan-pembayaran input, .pilihan-packaging input { transform:scale(1.05); margin-right:6px; }
-        .detail-bayar, .pack-detail { margin-left:26px; color:var(--muted); font-size:0.92rem; display:none; }
-        .detail-bayar.visible, .pack-detail.visible { display:block; }
-
-        .tombol-bayar { background: var(--green); color: #fff; border: none; padding:10px 14px; border-radius:8px; cursor:pointer; font-weight:700; margin-top:10px; }
-        .tombol-bayar:hover:not([disabled]) { background: var(--green-dark); }
-        #checkout-button[disabled] { opacity:0.6; cursor:not-allowed; }
-
-        .peringatan { color:#a00; margin-top:10px; display:block; }
-
-        footer { margin-top:36px; padding:18px 0; text-align:center; color:var(--muted); background: linear-gradient(180deg, rgba(0,0,0,0.02), transparent); }
-
-        /* small tweak: keep spacing consistent when cart empty */
-        #daftar-keranjang li { margin-bottom:8px; }
-        /* responsive: keep stacked on small screens */
-        @media (min-width: 1100px) {
-            /* if you want side-by-side on very wide screens, you can enable this:
-            .checkout-content { flex-direction: row; }
-            .keranjang-detail, form { width: 50%; }
-            */
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="container header-content">
-            <div class="brand">
-                <div class="logo">TB</div>
-                <h1>Toko Buah Segar</h1>
-            </div>
-            <nav>
-                <a href="#produk">Produk</a>
-                <a href="#cara-pesan">Cara Pesan</a>
-            </nav>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="section-banner" id="produk-banner">
-            <h2>Produk — Buah Segar Pilihan 🍎🍌</h2>
-            <p class="lead">Pilih buah kualitas terbaik, siap dikirim.</p>
-        </div>
-
-        <section id="produk">
-            <div class="produk-grid">
-                <div class="produk-item">
-                    <img src="applefuji.png" alt="Apel Fuji">
-                    <h3>Apel Fuji Premium</h3>
-                    <p class="deskripsi">Manis renyah, kualitas impor terbaik.</p>
-                    <p class="harga" data-price="35000">Rp 35.000 / kg</p>
-                    <button class="tambah-keranjang" data-id="1" data-nama="Apel Fuji Premium" data-harga="35000">Tambah ke Keranjang</button>
-                </div>
-                <div class="produk-item">
-                    <img src="pisangg.jpg" alt="Pisang Cavendish">
-                    <h3>Pisang Cavendish</h3>
-                    <p class="deskripsi">Kaya energi, cocok untuk segala usia.</p>
-                    <p class="harga" data-price="20000">Rp 20.000 / sisir</p>
-                    <button class="tambah-keranjang" data-id="2" data-nama="Pisang Cavendish" data-harga="20000">Tambah ke Keranjang</button>
-                </div>
-                <div class="produk-item">
-                    <img src="jerukk.jpg" alt="Jeruk Sunkist">
-                    <h3>Jeruk Sunkist</h3>
-                    <p class="deskripsi">Segar dan kaya Vitamin C.</p>
-                    <p class="harga" data-price="25000">Rp 25.000 / kg</p>
-                    <button class="tambah-keranjang" data-id="3" data-nama="Jeruk Sunkist" data-harga="25000">Tambah ke Keranjang</button>
-                </div>
-            </div>
-        </section>
-        
-        <hr style="border:none; height:1px; background:var(--border); margin:28px 0;">
-
-        <div class="section-banner" id="checkout-banner">
-            <h2>Keranjang & Checkout 🧺</h2>
-            <p class="lead">Cek pesanan, pilih kemasan dan metode pembayaran.</p>
-        </div>
-
-        <section id="checkout" class="checkout-area">
-            <div class="checkout-content">
-                <!-- Cart summary (top) -->
-                <div class="keranjang-detail">
-                    <h3>Daftar Belanja Anda</h3>
-                    <ul id="daftar-keranjang"></ul>
-
-                    <div class="keranjang-total"><span>Total Belanja:</span> <strong id="total-belanja">Rp 0</strong></div>
-                    <div class="keranjang-total"><span>Biaya Kemasan:</span> <strong id="packaging-cost">Rp 0</strong></div>
-                    <div class="keranjang-total"><span>Ongkos Kirim:</span> <strong id="ongkir">Rp 10.000</strong></div>
-                    <div class="grand-total"><span>Total Bayar</span> <strong><span id="grand-total">Rp 10.000</span></strong></div>
-                </div>
-
-                <!-- Form moved BELOW the cart -->
-                <form id="pembayaran-form">
-                    <h3>Informasi Pengiriman</h3>
-                    <div class="form-group">
-                        <label for="nama">Nama Lengkap</label>
-                        <input type="text" id="nama" name="nama" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="alamat">Alamat Lengkap</label>
-                        <textarea id="alamat" name="alamat" required rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="telepon">Nomor Telepon</label>
-                        <input type="tel" id="telepon" name="telepon" required>
-                    </div>
-
-                    <hr style="border:none; height:1px; background:var(--border); margin:12px 0;">
-
-                    <h3>Pilih Metode Pembayaran</h3>
-                    <div class="pilihan-pembayaran">
-                        <label><input type="radio" id="ewallet" name="metode_bayar" value="ewallet" data-label="E-Wallet (Gopay/OVO/Dana)" required> 💳 E-Wallet</label>
-                        <label><input type="radio" id="transfer" name="metode_bayar" value="transfer" data-label="Transfer Bank (BCA/Mandiri/BRI)"> 🏦 Transfer Bank</label>
-                        <label><input type="radio" id="cod" name="metode_bayar" value="cod" data-label="Cash On Delivery (COD)"> 💵 COD</label>
-
-                        <div class="detail-bayar ewallet-detail">Pembayaran akan diarahkan ke aplikasi whatsapp untuk verifikasi setelah klik 'Bayar Sekarang'.</div>
-                        <div class="detail-bayar transfer-detail">Transfer ke Rekening <strong>BCA 1234567890</strong> a.n. Toko Buah Segar. Kirim bukti transfer setelahnya.</div>
-                        <div class="detail-bayar cod-detail">Bayar tunai saat buah diterima. Biaya COD: Rp 5.000.</div>
-                    </div>
-
-                    <hr style="border:none; height:1px; background:var(--border); margin:12px 0;">
-
-                    <h3>Pilih Kemasan (opsional)</h3>
-                    <div class="pilihan-packaging">
-                        <label style="display:flex; align-items:center; gap:8px;">
-                            <input type="radio" id="pack_standard" name="packaging" value="Standard" data-label="Standard (Tanpa Box)" data-price="0" checked>
-                            Standard (Tanpa Box)
-                        </label>
-                        <div class="pack-detail">Kemasan standar tanpa box.</div>
-
-                        <label style="display:flex; align-items:center; gap:8px;">
-                            <input type="radio" id="pack_box" name="packaging" value="Box" data-label="Box (+Rp10.000)" data-price="10000">
-                            Box (+Rp10.000)
-                        </label>
-                        <div class="pack-detail">Tambahan box untuk hadiah / keamanan.</div>
-                    </div>
-
-                    <button type="submit" class="tombol-bayar" disabled id="checkout-button">Bayar Sekarang</button>
-                    <p class="peringatan" id="peringatan-keranjang"><strong>Keranjang kosong.</strong> Silakan pilih produk terlebih dahulu.</p>
-                </form>
-            </div>
-        </section>
-
-        <div class="section-banner" id="cara-pesan-banner" style="margin-top:28px;">
-            <h2>Cara Pemesanan</h2>
-            <p class="lead">Langkah mudah mulai memilih hingga pembayaran.</p>
-        </div>
-
-        <section id="cara-pesan" style="margin-bottom:36px;">
-            <ol>
-                <li>Pilih buah yang Anda inginkan dari bagian Produk.</li>
-                <li>Klik tombol Tambah ke Keranjang.</li>
-                <li>Cek ulang pesanan Anda di bagian Keranjang & Checkout.</li>
-                <li>Isi Informasi Pengiriman dengan lengkap.</li>
-                <li>Pilih Metode Pembayaran yang Anda inginkan.</li>
-                <li>Klik Bayar Sekarang dan ikuti instruksi pembayaran.</li>
-                <li>Setelah konfirmasi di whatsapp dan melakukan pembayaran, mohon kembali ke halaman utama untuk melihat atau mengunduh struk pembayaran.</li>
-            </ol>
-        </section>
-
-    </main>
-
-    <footer id="kontak">
-        <div class="container">
-            <p>&copy; 2025 Toko Buah Segar Online. | Hubungi Kami: <strong>085233573962</strong></p>
-        </div>
-    </footer>
-
-    <!-- RECEIPT OVERLAY (tambah ini tepat sebelum script.js) -->
-    <div id="receipt-overlay" class="receipt-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="receipt-title">
-      <div class="receipt-card" id="receipt-card">
-        <div class="receipt-top">
-          <div class="receipt-shop">Toko Buah Segar</div>
-          <div class="receipt-datetime" id="receipt-datetime">—</div>
-        </div>
-
-        <div class="receipt-divider"></div>
-
-        <div class="receipt-items" id="receipt-items"></div>
-
-        <div class="receipt-divider"></div>
-
-        <div class="receipt-summary">
-          <div class="summary-row"><span>Subtotal</span><span id="receipt-subtotal">Rp 0</span></div>
-          <div class="summary-row"><span>Biaya Kemasan</span><span id="receipt-pack">Rp 0</span></div>
-          <div class="summary-row"><span>Ongkir</span><span id="receipt-ongkir">Rp 0</span></div>
-          <div class="summary-row total"><span>TOTAL</span><span id="receipt-total">Rp 0</span></div>
-        </div>
-
-        <div class="receipt-divider thin"></div>
-
-        <div class="receipt-note">
-          <div id="receipt-orderid">#ORDER-XXXX</div>
-          <div class="receipt-msg">Silahkan kembali ke halaman utama untuk melihat atau mengunduh struk nya.</div>
-        </div>
-
-        <div class="receipt-actions">
-          <button id="download-receipt" class="tombol-bayar">Unduh / Cetak Struk</button>
-          <button id="close-receipt" class="tombol-bayar" style="background:#888;margin-left:8px">Tutup</button>
-        </div>
-      </div>
+<!-- Receipt Container: tambahkan ini di checkout.html (mis. setelah form atau sebelum penutup </main>) -->
+<div id="receipt-overlay" class="receipt-overlay hidden" aria-hidden="true">
+  <div class="receipt-card">
+    <div class="receipt-top">
+      <div class="receipt-shop">Toko Buah Segar</div>
+      <div class="receipt-datetime" id="receipt-datetime">—</div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div class="receipt-divider"></div>
+
+    <div class="receipt-items" id="receipt-items">
+      <!-- item rows akan di-inject oleh JS -->
+      <!-- Contoh row:
+      <div class="receipt-row">
+        <div class="r-left">1. Apel Fuji (x2)</div>
+        <div class="r-right">Rp 70.000</div>
+      </div>
+      -->
+    </div>
+
+    <div class="receipt-divider"></div>
+
+    <div class="receipt-summary">
+      <div class="summary-row"><span>Subtotal</span><span id="receipt-subtotal">Rp 0</span></div>
+      <div class="summary-row"><span>Biaya Kemasan</span><span id="receipt-pack">Rp 0</span></div>
+      <div class="summary-row"><span>Ongkir</span><span id="receipt-ongkir">Rp 0</span></div>
+      <div class="summary-row total"><span>TOTAL</span><span id="receipt-total">Rp 0</span></div>
+    </div>
+
+    <div class="receipt-divider thin"></div>
+
+    <div class="receipt-note">
+      <div id="receipt-orderid">#ORDER-123456</div>
+      <div class="receipt-msg">Silahkan kembali ke halaman utama untuk melihat atau mengunduh struk nya.</div>
+    </div>
+
+    <div class="receipt-actions">
+      <button id="download-receipt" class="tombol-bayar">Unduh / Cetak Struk</button>
+      <button id="close-receipt" class="tombol-bayar" style="background:#888;margin-left:8px">Tutup</button>
+    </div>
+  </div>
+</div>
