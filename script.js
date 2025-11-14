@@ -276,4 +276,142 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Inisialisasi Saat Halaman Dimuat ===
     hideAllDetails();
     renderKeranjang(); 
+
+    /* =========================
+       RECEIPT / STRUK - ADDED
+       - create receipt before the original submit handler runs (capture)
+       - save to localStorage and show overlay
+       ========================= */
+
+    // format date/time
+    const formatDateTime = (iso) => {
+        const date = new Date(iso);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        const hh = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+    };
+
+    // render receipt overlay
+    function renderReceipt(receipt) {
+        const overlay = document.getElementById('receipt-overlay');
+        const itemsContainer = document.getElementById('receipt-items');
+        const dtEl = document.getElementById('receipt-datetime');
+        const subtotalEl = document.getElementById('receipt-subtotal');
+        const packEl = document.getElementById('receipt-pack');
+        const ongkirEl = document.getElementById('receipt-ongkir');
+        const totalEl = document.getElementById('receipt-total');
+        const orderIdEl = document.getElementById('receipt-orderid');
+
+        if (!overlay || !itemsContainer) return;
+
+        dtEl.textContent = formatDateTime(receipt.createdAt);
+        orderIdEl.textContent = receipt.orderId ? `#${receipt.orderId}` : '';
+
+        itemsContainer.innerHTML = '';
+        receipt.items.forEach((it, idx) => {
+            const row = document.createElement('div');
+            row.className = 'receipt-row';
+            const left = document.createElement('div');
+            left.className = 'r-left';
+            left.textContent = `${idx + 1}. ${it.nama} (x${it.qty})`;
+            const right = document.createElement('div');
+            right.className = 'r-right';
+            right.textContent = formatRupiah(it.harga * it.qty);
+            row.appendChild(left);
+            row.appendChild(right);
+            itemsContainer.appendChild(row);
+        });
+
+        subtotalEl.textContent = formatRupiah(receipt.subtotal || 0);
+        packEl.textContent = formatRupiah(receipt.biayaPackaging || 0);
+        ongkirEl.textContent = formatRupiah(receipt.ongkosKirim || 0);
+        totalEl.textContent = formatRupiah(receipt.total || 0);
+
+        overlay.classList.remove('hidden');
+        overlay.setAttribute('aria-hidden', 'false');
+    }
+
+    // save to localStorage
+    function saveReceiptToStorage(receipt) {
+        try {
+            const existing = JSON.parse(localStorage.getItem('receipts') || '[]');
+            existing.unshift(receipt);
+            localStorage.setItem('receipts', JSON.stringify(existing));
+            localStorage.setItem('lastReceipt', JSON.stringify(receipt));
+        } catch (e) {
+            console.error('Failed to save receipt', e);
+        }
+    }
+
+    // print/download
+    function downloadReceipt() {
+        const card = document.getElementById('receipt-card');
+        if (!card) return;
+        const win = window.open('', '_blank', 'width=420,height=800');
+        const style = `
+          <style>
+            body{font-family: Arial, sans-serif; padding:20px; color:#222}
+            .receipt-card{width:360px; margin:0 auto}
+            .receipt-row{display:flex; justify-content:space-between; margin:6px 0}
+            .summary-row{display:flex; justify-content:space-between; margin-top:6px}
+          </style>
+        `;
+        win.document.write('<html><head><title>Struk Pemesanan</title>' + style + '</head><body>');
+        win.document.write(card.outerHTML);
+        win.document.write('</body></html>');
+        win.document.close();
+        win.focus();
+        setTimeout(() => {
+            win.print();
+        }, 600);
+    }
+
+    // close/hide receipt
+    document.addEventListener('click', (e) => {
+        if (e.target && e.target.id === 'close-receipt') {
+            const overlay = document.getElementById('receipt-overlay');
+            overlay?.classList.add('hidden');
+            overlay?.setAttribute('aria-hidden', 'true');
+        }
+        if (e.target && e.target.id === 'download-receipt') {
+            downloadReceipt();
+        }
+    });
+
+    // capture submit to create/save receipt before original submit handler runs
+    let _receiptCreated = false;
+    if (pembayaranForm) {
+        pembayaranForm.addEventListener('submit', (e) => {
+            // run only once per submit
+            if (_receiptCreated) return;
+            // if cart empty, skip (original handler will handle)
+            if (!keranjang || keranjang.length === 0) return;
+
+            // build receipt from current cart and totals
+            const totals = hitungTotal();
+            const formData = Object.fromEntries(new FormData(pembayaranForm).entries());
+
+            const receipt = {
+                shopName: 'Toko Buah Segar',
+                createdAt: new Date().toISOString(),
+                items: keranjang.map(it => ({ id: it.id, nama: it.nama, harga: it.harga, qty: it.qty })),
+                subtotal: totals.subtotal,
+                ongkosKirim: totals.ongkosKirim,
+                biayaTambahan: totals.biayaTambahan || 0,
+                biayaPackaging: totals.biayaPackaging || 0,
+                total: totals.grandTotal,
+                customer: { nama: formData.nama || '', telepon: formData.telepon || '', alamat: formData.alamat || '' },
+                orderId: `TB-${Date.now().toString().slice(-6)}`
+            };
+
+            saveReceiptToStorage(receipt);
+            renderReceipt(receipt);
+            _receiptCreated = true;
+            // do not prevent the event; let the original submit handler proceed
+        }, { capture: true });
+    }
+
 });
