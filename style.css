@@ -401,4 +401,63 @@ footer p {
     */
 }
 
+/* ========== RECEIPT STYLES (ditambahkan) ========== */
+
+.hidden { display: none !important; }
+
+/* overlay semi-transparan full screen */
+.receipt-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 9999;
+  padding: 24px;
+}
+
+/* kartu receipt */
+.receipt-card {
+  width: 360px;
+  max-width: calc(100% - 48px);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  padding: 18px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #222;
+  position: relative;
+}
+
+.receipt-top { text-align:center; margin-bottom:10px; }
+.receipt-shop { font-weight:900; font-size:18px; letter-spacing:1px; }
+.receipt-datetime { font-size:12px; color:#666; margin-top:6px; }
+
+.receipt-divider {
+  height: 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  margin: 8px 0;
+}
+.receipt-divider.thin { height: 6px; border-bottom-style: solid; opacity:0.6; }
+
+.receipt-items { max-height: 280px; overflow:auto; padding-right:6px; }
+.receipt-row { display:flex; justify-content:space-between; margin:8px 0; font-size:14px; }
+.receipt-row .r-left { color:#333; }
+.receipt-row .r-right { color:#222; font-weight:600; }
+
+.receipt-summary { margin-top:8px; }
+.summary-row { display:flex; justify-content:space-between; padding:6px 0; color:#444; border-bottom: 0px solid transparent; font-size:14px; }
+.summary-row.total { font-size:16px; font-weight:900; color:#111; margin-top:6px; border-top:1px dashed rgba(0,0,0,0.06); padding-top:10px; }
+
+.receipt-note { margin-top:12px; text-align:center; font-size:12px; color:#666; }
+.receipt-msg { margin-top:6px; font-weight:600; color:#333; }
+
+.receipt-actions { display:flex; justify-content:center; gap:8px; margin-top:14px; }
+
+@media (max-width:420px) {
+  .receipt-card { width: 92%; padding:12px; }
+  .receipt-row { margin:6px 0; font-size:13px; }
+}
+
 /* end of stylesheet */
