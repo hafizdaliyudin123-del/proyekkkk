@@ -238,6 +238,41 @@
         </div>
     </footer>
 
+    <!-- RECEIPT OVERLAY (tambah ini tepat sebelum script.js) -->
+    <div id="receipt-overlay" class="receipt-overlay hidden" aria-hidden="true" role="dialog" aria-labelledby="receipt-title">
+      <div class="receipt-card" id="receipt-card">
+        <div class="receipt-top">
+          <div class="receipt-shop">Toko Buah Segar</div>
+          <div class="receipt-datetime" id="receipt-datetime">—</div>
+        </div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-items" id="receipt-items"></div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-summary">
+          <div class="summary-row"><span>Subtotal</span><span id="receipt-subtotal">Rp 0</span></div>
+          <div class="summary-row"><span>Biaya Kemasan</span><span id="receipt-pack">Rp 0</span></div>
+          <div class="summary-row"><span>Ongkir</span><span id="receipt-ongkir">Rp 0</span></div>
+          <div class="summary-row total"><span>TOTAL</span><span id="receipt-total">Rp 0</span></div>
+        </div>
+
+        <div class="receipt-divider thin"></div>
+
+        <div class="receipt-note">
+          <div id="receipt-orderid">#ORDER-XXXX</div>
+          <div class="receipt-msg">Silahkan kembali ke halaman utama untuk melihat atau mengunduh struk nya.</div>
+        </div>
+
+        <div class="receipt-actions">
+          <button id="download-receipt" class="tombol-bayar">Unduh / Cetak Struk</button>
+          <button id="close-receipt" class="tombol-bayar" style="background:#888;margin-left:8px">Tutup</button>
+        </div>
+      </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
